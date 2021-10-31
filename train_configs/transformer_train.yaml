@@ -1,0 +1,17 @@
+# paths:
+path_to_data: '/home/otabek.nazarov/Downloads/hc701/hectooor/data/hecktor2021_train/hecktor_nii/hecktor_nii_resampled'  # directory with images
+path_to_pkl: '/home/otabek.nazarov/Downloads/hc701/hectooor/code/project_code_base/train_configs/train_val_new_split.pkl'  # pkl file with train / val splits
+path_to_save_dir: '/home/otabek.nazarov/Downloads/hc701/hectooor/code/project_code_base/model_trainers/transformer_results'  # all results (weights, learning curves, etc) will be saved here
+
+# train settings:
+train_batch_size: 16
+val_batch_size: 2
+num_workers: 2  # for example, use a number of CPU cores
+
+lr: 1e-3  # initial learning rate
+n_epochs: 200  # number of training epochs
+out_channels: 1  # background not counted as class
+in_channels: 2  # number of input modalities
+
+T_0: 25  # parameter for 'torch.optim.lr_scheduler.CosineAnnealingWarmRestarts'
+eta_min: 1e-5  # parameter for 'torch.optim.lr_scheduler.CosineAnnealingWarmRestarts'
