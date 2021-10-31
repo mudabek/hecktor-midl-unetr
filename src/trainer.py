@@ -125,8 +125,6 @@ class ModelTrainer:
                         # Forward pass:
                         output = self.model(input)
                         loss = self.criterion(output, target)
-                        import pdb
-                        pdb.set_trace()
                         metric = self.metric(output.detach(), target.detach())
 
                         # Losses and metric:
