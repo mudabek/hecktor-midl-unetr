@@ -314,8 +314,7 @@ class AdjustContrast(Transform):
         ct_img = images[:,:,:,0]
         pet_img = images[:,:,:,1]
         
-        import pdb
-        pdb.set_trace()
+        
         epsilon = 1e-7
         img_min = pet_img.min()
         img_range = pet_img.max() - img_min
