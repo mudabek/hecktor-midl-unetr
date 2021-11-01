@@ -314,10 +314,12 @@ class AdjustContrast(Transform):
         ct_img = images[:,:,:,0]
         pet_img = images[:,:,:,1]
         
-
+        import pdb
+        pdb.set_trace()
         epsilon = 1e-7
         img_min = pet_img.min()
-        img_range = pet_img.max() - pet_img
+        img_range = pet_img.max() - img_min
+        
         ret: NdarrayOrTensor = ((pet_img - img_min) / float(img_range + epsilon)) ** self.gamma * img_range + img_min
         img = np.stack([ct_img, ret], axis=-1)
 
