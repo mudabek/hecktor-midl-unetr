@@ -1,3 +1,5 @@
+from monai.metrics.hausdorff_distance import compute_hausdorff_distance
+
 def dice(input, target):
     axes = tuple(range(1, input.dim()))
     bin_input = (input > 0.5).float()
@@ -29,3 +31,8 @@ def precision(input, target):
     precision = true_positives / all_positive_calls
 
     return precision.mean()
+
+def hausdorff(input, target, percentile=95): # [batch_size, x, y, z]
+    target = target.unsqueeze(1)
+    input = input.unsqueeze(1)
+    return compute_hausdorff_distance(input, target, include_background=True, percentile=percentile)

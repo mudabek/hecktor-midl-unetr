@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from metrics import dice, hausdorff
 
 
 class DiceLoss(nn.Module):
@@ -37,3 +38,31 @@ class Dice_and_FocalLoss(nn.Module):
     def forward(self, input, target):
         loss = self.dice_loss(input, target) + self.focal_loss(input, target)
         return loss
+
+
+
+class SCST(nn.Module):
+    def __init__(self, metric='dice'):
+        super(SCST, self).__init__()
+        self.metric = metric 
+
+
+    def forward(self, input, target, baseline_score):
+
+        # Calculate score and advantage for a given metric
+        if self.metric == 'dice':
+            score = dice(input, target)
+            advantage = score - baseline_score
+        else:
+            score = hausdorff(input, target)
+            advantage = baseline_score - score  
+
+        # Calculate log of probabilities
+        odds = torch.exp(input)
+        prob = odds / (1 + odds)
+        log_prob = torch.log(prob)
+
+        # Calculate loss
+        loss = -advantage * log_prob
+        
+        return loss.mean()
