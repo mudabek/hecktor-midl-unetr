@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import torch
+from metrics import precision, recall
 
 
 class ModelTrainer:
@@ -72,8 +73,11 @@ class ModelTrainer:
         # Dicts for saving train and val losses:
         self.learning_curves = dict()
         self.learning_curves['loss'], self.learning_curves['metric'] = dict(), dict()
+        self.learning_curves['precision'], self.learning_curves['recall'] = dict(), dict()
         self.learning_curves['loss']['train'], self.learning_curves['loss']['val'] = [], []
         self.learning_curves['metric']['train'], self.learning_curves['metric']['val'] = [], []
+        self.learning_curves['precision']['train'], self.learning_curves['precision']['val'] = [], []
+        self.learning_curves['recall']['train'], self.learning_curves['recall']['val'] = [], []
 
         # Summary: Best epoch, loss, metric and best model weights:
         self.best_val_epoch = 0
@@ -82,6 +86,8 @@ class ModelTrainer:
             self.best_val_avg_metric = -float('inf')
         else:
             self.best_val_avg_metric = float('inf')
+        self.best_val_precision = -float('inf')
+        self.best_val_recall = -float('inf')
         self.best_val_metric = 0.0
         self.best_model_wts = None
         self.checkpoint = None  # last model and optimizer weights
@@ -113,6 +119,8 @@ class ModelTrainer:
 
                 phase_loss = 0.0  # Train or val loss
                 phase_metric = 0.0
+                phase_precision = 0.0
+                phase_recall = 0.0
 
                 # Track history only if in train phase:
                 with torch.set_grad_enabled(phase == 'train'):
@@ -126,15 +134,19 @@ class ModelTrainer:
                         output = self.model(input)
                         loss = self.criterion(output, target)
                         metric = self.metric(output.detach(), target.detach())
+                        sample_recall = recall(output.detach(), target.detach())
+                        sample_precision = precision(output.detach(), target.detach())
 
                         # Losses and metric:
                         phase_loss += loss.item()
                         phase_metric += metric.item()
+                        phase_precision += sample_precision
+                        phase_recall += sample_recall
 
                         with np.printoptions(precision=3, suppress=True):
                             print(f'batch: {batch} batch loss: {loss:.3f} \tmetric: {metric:.3f}')
 
-                        del input, target, output, metric
+                        del input, target, output, metric, sample_precision, sample_recall
 
                         # Backward pass + optimize only if in training phase:
                         if phase == 'train':
@@ -152,8 +164,13 @@ class ModelTrainer:
 
                 phase_loss /= len(self.dataloaders[phase])
                 phase_metric /= len(self.dataloaders[phase])
+                phase_precision /= len(self.dataloaders[phase])
+                phase_recall /= len(self.dataloaders[phase])
+
                 self.learning_curves['loss'][phase].append(phase_loss)
                 self.learning_curves['metric'][phase].append(phase_metric)
+                self.learning_curves['precision'][phase].append(phase_precision)
+                self.learning_curves['recall'][phase].append(phase_recall)
 
                 print(f'{phase.upper()} loss: {phase_loss:.3f} \tavg_metric: {np.mean(phase_metric):.3f}')
 
@@ -165,6 +182,8 @@ class ModelTrainer:
                         self.best_val_avg_metric = np.mean(phase_metric)
                         self.best_val_metric = phase_metric
                         self.best_model_wts = copy.deepcopy(self.model.state_dict())
+                        self.best_val_precision = phase_precision
+                        self.best_val_recall = phase_recall
 
                     if self.mode == 'min' and np.mean(phase_metric) < self.best_val_avg_metric:
                         self.best_val_epoch = epoch
@@ -172,6 +191,8 @@ class ModelTrainer:
                         self.best_val_avg_metric = np.mean(phase_metric)
                         self.best_val_metric = phase_metric
                         self.best_model_wts = copy.deepcopy(self.model.state_dict())
+                        self.best_val_precision = phase_precision
+                        self.best_val_recall = phase_recall
 
             # Adjust learning rate after val phase:
             if self.scheduler and self.scheduler_step_per_epoch:
@@ -211,6 +232,8 @@ class ModelTrainer:
             summary.write(f'BEST VAL LOSS: {self.best_val_loss}\n')
             summary.write(f'BEST VAL AVG metric: {self.best_val_avg_metric}\n')
             summary.write(f'BEST VAL metric: {self.best_val_metric}\n')
+            summary.write(f'BEST VAL precision: {self.best_val_precision}\n')
+            summary.write(f'BEST VAL recall: {self.best_val_recall}\n')
 
         # Save best model weights:
         torch.save(self.best_model_wts, path_to_dir / 'best_model_weights.pt')
@@ -224,7 +247,12 @@ class ModelTrainer:
             'loss_train': self.learning_curves['loss']['train'],
             'loss_val': self.learning_curves['loss']['val'],
             'metric_train': self.learning_curves['metric']['train'],
-            'metric_val': self.learning_curves['metric']['val']
+            'metric_val': self.learning_curves['metric']['val'],
+
+            'precision_train': self.learning_curves['precision']['train'],
+            'precision_val': self.learning_curves['precision']['val'],
+            'recall_train': self.learning_curves['recall']['train'],
+            'recall_val': self.learning_curves['recall']['val'],
         })
         df_learning_curves.to_csv(path_to_dir / 'learning_curves.csv', sep=';')
 

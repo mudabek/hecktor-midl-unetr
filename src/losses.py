@@ -37,3 +37,31 @@ class Dice_and_FocalLoss(nn.Module):
     def forward(self, input, target):
         loss = self.dice_loss(input, target) + self.focal_loss(input, target)
         return loss
+
+
+class CELoss(nn.Module):
+    def __init__(self):
+        super(CELoss, self).__init__()
+        self.cross_entropy = nn.CrossEntropyLoss()
+
+    def forward(self, input, target):
+        n_pred_ch, n_target_ch = input.shape[1], target.shape[1]
+        if n_pred_ch == n_target_ch:
+            # target is in the one-hot format, convert to BH[WD] format to calculate ce loss
+            target = torch.argmax(target, dim=1)
+        else:
+            target = torch.squeeze(target, dim=1)
+        target = target.long()
+
+        return self.cross_entropy(input, target)
+
+
+class Dice_and_CELoss(nn.Module):
+    def __init__(self):
+        super(Dice_and_CELoss, self).__init__()
+        self.dice_loss = DiceLoss()
+        self.ce_loss =  CELoss()
+
+    def forward(self, input, target):
+        loss = self.dice_loss(input, target) + self.ce_loss(input, target)
+        return loss
