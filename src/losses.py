@@ -40,7 +40,6 @@ class Dice_and_FocalLoss(nn.Module):
         return loss
 
 
-
 class SCST(nn.Module):
     def __init__(self, metric='dice'):
         super(SCST, self).__init__()

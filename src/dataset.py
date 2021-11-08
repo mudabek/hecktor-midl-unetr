@@ -1,5 +1,6 @@
 import numpy as np
 import nibabel as nib
+import pickle
 from torch.utils.data import Dataset
 
 
@@ -18,6 +19,10 @@ class HecktorDataset(Dataset):
         else:
             self.num_of_seqs = len(paths_to_samples[0])
 
+        with open('/home/otabek.nazarov/Downloads/hc701/hectooor/neck-tumor-3D-segmentation/train_configs/updated_dice_metrics.pkl', 'rb') as handle:
+            self.dice_dict = pickle.load(handle)
+        
+
 
     def __len__(self):
         return len(self.paths_to_samples)
@@ -29,6 +34,9 @@ class HecktorDataset(Dataset):
         id_ = self.paths_to_samples[index][0].parent.stem
         sample['id'] = id_
 
+        if id_ in self.dice_dict:
+            sample['dice_metric'] = self.dice_dict[id_]
+
         img = [self.read_data(self.paths_to_samples[index][i]) for i in range(self.num_of_seqs)]
         img = np.stack(img, axis=-1)
         sample['input'] = img
@@ -39,7 +47,7 @@ class HecktorDataset(Dataset):
 
             assert img.shape[:-1] == mask.shape[:-1], \
                 f"Shape mismatch for the image with the shape {img.shape} and the mask with the shape {mask.shape}."
-
+            
             sample['target'] = mask
         else:
             sample['affine'] = self.read_data(self.paths_to_samples[index][0], False).affine
