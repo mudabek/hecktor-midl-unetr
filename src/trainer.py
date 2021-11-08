@@ -140,8 +140,8 @@ class ModelTrainer:
                         # Losses and metric:
                         phase_loss += loss.item()
                         phase_metric += metric.item()
-                        phase_precision += sample_precision
-                        phase_recall += sample_recall
+                        phase_precision += sample_precision.item()
+                        phase_recall += sample_recall.item()
 
                         with np.printoptions(precision=3, suppress=True):
                             print(f'batch: {batch} batch loss: {loss:.3f} \tmetric: {metric:.3f}')
