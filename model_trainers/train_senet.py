@@ -47,7 +47,8 @@ def main(args):
     train_transforms = transforms.Compose([
         transforms.RandomRotation(p=0.5, angle_range=[0, 45]),
         transforms.Mirroring(p=0.5),
-        transforms.AdjustContrast(random=True, gamma=1),
+        # transforms.AdjustContrast(random=True, gamma=1),
+        transforms.GammaTransform(),
         transforms.Zoom(factor=1.3, mode='train'),
         transforms.NormalizeIntensity(),
         transforms.ToTensor()

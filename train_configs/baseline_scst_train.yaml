@@ -1,0 +1,19 @@
+# paths:
+path_to_data: '/home/otabek.nazarov/Downloads/hc701/hectooor/data/hecktor2021_train/hecktor_nii/hecktor_nii_resampled'  # directory with images
+path_to_pkl: '/home/otabek.nazarov/Downloads/hc701/hectooor/neck-tumor-3D-segmentation/train_configs/train_val_new_split.pkl'  # pkl file with train / val splits
+path_to_save_dir: '/home/otabek.nazarov/Downloads/hc701/hectooor/neck-tumor-3D-segmentation/model_trainers/scst_results'  # all results (weights, learning curves, etc) will be saved here
+path_to_pretrained_model: '/home/otabek.nazarov/Downloads/hc701/hectooor/neck-tumor-3D-segmentation/model_trainers/baseline_results/focal_loss_results/best_model_weights.pt'
+
+# train settings:
+train_batch_size: 2
+val_batch_size: 1
+num_workers: 2  # for example, use a number of CPU cores
+
+lr: 5e-5  # initial learning rate
+n_epochs: 10  # number of training epochs (300 was used in the paper)
+n_cls: 2  # number of classes to predict (background and tumor)
+in_channels: 2  # number of input modalities
+n_filters: 16
+
+T_0: 25  # parameter for 'torch.optim.lr_scheduler.CosineAnnealingWarmRestarts'
+eta_min: 1e-5  # parameter for 'torch.optim.lr_scheduler.CosineAnnealingWarmRestarts'

@@ -64,13 +64,13 @@ def main(args):
     # dataloaders:
     train_loader = DataLoader(train_set, batch_size=train_batch_size, shuffle=True, num_workers=num_workers)
     val_loader = DataLoader(val_set, batch_size=val_batch_size, shuffle=False, num_workers=num_workers)
-
+    
     dataloaders = {
         'train': train_loader,
         'val': val_loader
     }
 
-    model = model = models.BaselineUNet(in_channels, n_cls, n_filters)
+    model = models.BaselineUNet(in_channels, n_cls, n_filters)
 
     criterion = losses.Dice_and_FocalLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.99))
