@@ -12,7 +12,7 @@ import dataset
 import transforms
 import losses
 import metrics
-import trainer
+import scst_trainer as trainer
 import models
 import utils
 
@@ -26,16 +26,18 @@ def main(args):
     path_to_data = pathlib.Path(config['path_to_data'])
     path_to_pkl = pathlib.Path(config['path_to_pkl'])
     path_to_save_dir = pathlib.Path(config['path_to_save_dir'])
+    path_to_pretrained_model = pathlib.Path(config['path_to_pretrained_model'])
 
     train_batch_size = int(config['train_batch_size'])
     val_batch_size = int(config['val_batch_size'])
     num_workers = int(config['num_workers'])
     lr = float(config['lr'])
     n_epochs = int(config['n_epochs'])
+
     n_cls = int(config['n_cls'])
     in_channels = int(config['in_channels'])
     n_filters = int(config['n_filters'])
-    reduction = int(config['reduction'])
+    
     T_0 = int(config['T_0'])
     eta_min = float(config['eta_min'])
 
@@ -47,15 +49,11 @@ def main(args):
     train_transforms = transforms.Compose([
         transforms.RandomRotation(p=0.5, angle_range=[0, 45]),
         transforms.Mirroring(p=0.5),
-        # transforms.AdjustContrast(random=True, gamma=1),
-        transforms.GammaTransform(),
-        transforms.Zoom(factor=1.3, mode='train'),
         transforms.NormalizeIntensity(),
         transforms.ToTensor()
     ])
-    
+
     val_transforms = transforms.Compose([
-        transforms.Zoom(factor=1.3, mode='test'),
         transforms.NormalizeIntensity(),
         transforms.ToTensor()
     ])
@@ -67,15 +65,16 @@ def main(args):
     # dataloaders:
     train_loader = DataLoader(train_set, batch_size=train_batch_size, shuffle=True, num_workers=num_workers)
     val_loader = DataLoader(val_set, batch_size=val_batch_size, shuffle=False, num_workers=num_workers)
-
+    
     dataloaders = {
         'train': train_loader,
         'val': val_loader
     }
 
-    model = models.FastSmoothSENormDeepUNet_supervision_skip_no_drop(in_channels, n_cls, n_filters, reduction)
+    model = models.BaselineUNet(in_channels, n_cls, n_filters)
+    model.load_state_dict(torch.load(path_to_pretrained_model))
 
-    criterion = losses.Dice_and_FocalLoss()
+    criterion = losses.SCST()#Dice_and_FocalLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.99))
     metric = metrics.dice
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=T_0, eta_min=eta_min)

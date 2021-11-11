@@ -36,6 +36,8 @@ class HecktorDataset(Dataset):
 
         if id_ in self.dice_dict:
             sample['dice_metric'] = self.dice_dict[id_]
+        else:
+            sample['dice_metric'] = 0.0
 
         img = [self.read_data(self.paths_to_samples[index][i]) for i in range(self.num_of_seqs)]
         img = np.stack(img, axis=-1)

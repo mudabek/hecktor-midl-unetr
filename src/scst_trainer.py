@@ -119,12 +119,12 @@ class ModelTrainer:
                     # Iterate over data batches:
                     batch = 0
                     for sample in self.dataloaders[phase]:
-                        input, target = sample['input'], sample['target']
-                        input, target = input.to(self.device), target.to(self.device)
+                        input, target, base_score = sample['input'], sample['target'], sample['dice_metric']
+                        input, target, base_score = input.to(self.device), target.to(self.device), base_score.to(self.device)
 
                         # Forward pass:
                         output = self.model(input)
-                        loss = self.criterion(output, target)
+                        loss = self.criterion(output, target, base_score, phase)
                         metric = self.metric(output.detach(), target.detach())
 
                         # Losses and metric:
