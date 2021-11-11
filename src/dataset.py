@@ -66,3 +66,46 @@ class HecktorDataset(Dataset):
         if return_numpy:
             return nib.load(str(path_to_nifti)).get_fdata()
         return nib.load(str(path_to_nifti))
+
+
+class EnsembleHecktorDataset(HecktorDataset):
+
+    def __getitem__(self, index):
+        sample = dict()
+
+        id_ = self.paths_to_samples[index][0].parent.stem
+        sample['id'] = id_
+
+        if id_ in self.dice_dict:
+            sample['dice_metric'] = self.dice_dict[id_]
+        else:
+            sample['dice_metric'] = 0.0
+
+        EXTRA_PET_COPIES = 3
+
+        img = [self.read_data(self.paths_to_samples[index][i]) for i in range(self.num_of_seqs)]
+
+        for _ in range(EXTRA_PET_COPIES):
+            img.append(img[1])
+
+        img = np.stack(img, axis=-1)
+
+        
+
+        sample['input'] = img
+
+        if self.mode == 'train':
+            mask = self.read_data(self.paths_to_samples[index][-1])
+            mask = np.expand_dims(mask, axis=3)
+
+            assert img.shape[:-1] == mask.shape[:-1], \
+                f"Shape mismatch for the image with the shape {img.shape} and the mask with the shape {mask.shape}."
+            
+            sample['target'] = mask
+        else:
+            sample['affine'] = self.read_data(self.paths_to_samples[index][0], False).affine
+
+        # if self.transforms:
+        #     sample = self.transforms(sample)
+
+        return sample

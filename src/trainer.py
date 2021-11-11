@@ -66,7 +66,7 @@ class ModelTrainer:
         self.scheduler = scheduler
         self.num_epochs = num_epochs
         self.parallel = parallel
-        self.device = torch.device(cuda_device if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cpu")#torch.device(cuda_device if torch.cuda.is_available() else "cpu")
         self.save_last_model = save_last_model
         self.scheduler_step_per_epoch = scheduler_step_per_epoch
 
