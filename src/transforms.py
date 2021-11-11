@@ -768,10 +768,10 @@ class GammaTransform:
         pet_img = images[:,:,:,1]
 
         if random.random() < self.p:
-            gamma_img = augment_gamma(pet_img, self.gamma_range, self.invert_image, self.per_channel, self.retain_stats)
+            pet_img = augment_gamma(pet_img, self.gamma_range, self.invert_image, self.per_channel, self.retain_stats)
 
-        return_image = np.stack([ct_img, gamma_img], axis=-1)
+        return_image = np.stack([ct_img, pet_img], axis=-1)
         sample['input'] = return_image
-        
+
         return sample
         
