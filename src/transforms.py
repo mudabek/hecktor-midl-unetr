@@ -772,6 +772,6 @@ class GammaTransform:
 
         return_image = np.stack([ct_img, pet_img], axis=-1)
         sample['input'] = return_image
-        
+
         return sample
         
