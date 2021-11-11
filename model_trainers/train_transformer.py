@@ -85,7 +85,7 @@ def main(args):
         dropout_rate=0.0,
     )
 
-    criterion = losses.Dice_and_FocalLoss()
+    criterion = losses.Dice_and_CELoss() #losses.Dice_and_FocalLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.99))
     metric = metrics.dice
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=T_0, eta_min=eta_min)

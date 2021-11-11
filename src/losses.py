@@ -39,6 +39,7 @@ class Dice_and_FocalLoss(nn.Module):
         loss = self.dice_loss(input, target) + self.focal_loss(input, target)
         return loss
 
+
 class CELoss(nn.Module):
     def __init__(self):
         super(CELoss, self).__init__()
@@ -90,3 +91,14 @@ class SCST(nn.Module):
             
             return loss.mean()
         return self.dice_loss(input, target)
+
+class Dice_and_CELoss(nn.Module):
+    def __init__(self):
+        super(Dice_and_CELoss, self).__init__()
+        self.dice_loss = DiceLoss()
+        self.ce_loss =  CELoss()
+
+    def forward(self, input, target):
+        loss = self.dice_loss(input, target) + self.ce_loss(input, target)
+        return loss
+
