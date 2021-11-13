@@ -49,13 +49,13 @@ def main(args):
         transforms.Mirroring(p=0.5),
         # transforms.AdjustContrast(random=True, gamma=1),
         transforms.GammaTransform(),
-        transforms.Zoom(factor=1.3, mode='train'),
+        # transforms.Zoom(factor=1.3, mode='train'),
         transforms.NormalizeIntensity(),
         transforms.ToTensor()
     ])
     
     val_transforms = transforms.Compose([
-        transforms.Zoom(factor=1.3, mode='test'),
+        # transforms.Zoom(factor=1.3, mode='test'),
         transforms.NormalizeIntensity(),
         transforms.ToTensor()
     ])
@@ -88,7 +88,9 @@ def main(args):
         metric=metric,
         scheduler=scheduler,
         num_epochs=n_epochs,
-        parallel=True
+        parallel=True,
+        penalty=True,
+        path_to_dir=path_to_save_dir,
     )
 
     trainer_.train_model()

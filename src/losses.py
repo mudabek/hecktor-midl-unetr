@@ -43,20 +43,25 @@ class Dice_and_FocalLoss(nn.Module):
 class CELoss(nn.Module):
     def __init__(self):
         super(CELoss, self).__init__()
-        self.cross_entropy = torch.nn.BCELoss()#nn.CrossEntropyLoss()
+        self.cross_entropy = nn.CrossEntropyLoss()
+
 
     def forward(self, input, target):
-        # import pdb
-        # pdb.set_trace()
-        # n_pred_ch, n_target_ch = input.shape[1], target.shape[1]
-        # if n_pred_ch == n_target_ch:
-        #     # target is in the one-hot format, convert to BH[WD] format to calculate ce loss
-        #     target = torch.argmax(target, dim=1)
-        # else:
-        #     target = torch.squeeze(target, dim=1)
-        # target = target.long()
+        # Get the device 
+        try:
+            input.get_device()
+            device = 'cuda:0'
+        except:
+            device = 'cpu'
 
-        return self.cross_entropy(input, target)
+        # Reshape input and target
+        input_class_0 = 1 - input
+        input_ce = torch.stack((input_class_0, input), dim=0).squeeze(2).to(device)
+        target_ce = target.squeeze(1).type(torch.LongTensor).to(device)
+        import pdb
+        pdb.set_trace()
+
+        return self.cross_entropy(input_ce, target_ce)
 
 
 class SCST(nn.Module):
@@ -64,8 +69,7 @@ class SCST(nn.Module):
         super(SCST, self).__init__()
         self.metric = metric 
         self.dice_loss = DiceLoss()
-        # self.ce_loss = CELoss()
-        self.focal_loss = FocalLoss()
+        self.ce_loss = CELoss()
 
 
     def forward(self, input, target, baseline_score, phase):
@@ -78,19 +82,14 @@ class SCST(nn.Module):
                 score = hausdorff(input, target)
                 advantage = baseline_score - score  
 
-            # Calculate log of probabilities
-            # odds = torch.exp(input)
-            # prob = torch.exp(input) / (1 + torch.exp(input))
-
-            # Calculate loss
-            # loss = -advantage[:, None, None, None, None] * torch.log(torch.exp(input) / (1 + torch.exp(input)))
-            # loss = -advantage[:, None, None, None, None].data * torch.log(input)
             # ce_loss = self.ce_loss(input, target)
-            focal_loss = self.focal_loss(input, target)
-            loss = -advantage.mean() * focal_loss
+            log_loss = self.ce_loss(input, target)
+
+            loss = -advantage * log_loss
             
             return loss.mean()
-        return self.dice_loss(input, target)
+        # return self.dice_loss(input, target)
+        return self.ce_loss(input, target)
 
 class Dice_and_CELoss(nn.Module):
     def __init__(self):

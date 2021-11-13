@@ -72,7 +72,7 @@ def main(args):
 
     model = models.BaselineUNet(in_channels, n_cls, n_filters)
 
-    criterion = losses.Dice_and_FocalLoss()
+    criterion = losses.FocalLoss()#losses.Dice_and_FocalLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.99))
     metric = metrics.dice
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=T_0, eta_min=eta_min)

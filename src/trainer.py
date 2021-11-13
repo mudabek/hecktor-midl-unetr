@@ -55,7 +55,8 @@ class ModelTrainer:
     def __init__(self, model, dataloaders, criterion, optimizer,
                  metric=None, mode='max', scheduler=None, num_epochs=25,
                  parallel=False, cuda_device="cuda:0",
-                 save_last_model=True, scheduler_step_per_epoch=True):
+                 save_last_model=True, scheduler_step_per_epoch=True,
+                 penalty=False, path_to_dir=''):
 
         self.model = model
         self.dataloaders = dataloaders
@@ -69,6 +70,8 @@ class ModelTrainer:
         self.device = torch.device(cuda_device if torch.cuda.is_available() else "cpu")
         self.save_last_model = save_last_model
         self.scheduler_step_per_epoch = scheduler_step_per_epoch
+        self.penalty = penalty
+        self.path_to_dir = path_to_dir
 
         # Dicts for saving train and val losses:
         self.learning_curves = dict()
@@ -132,7 +135,18 @@ class ModelTrainer:
 
                         # Forward pass:
                         output = self.model(input)
-                        loss = self.criterion(output, target)
+
+                        # L2 Regularization [Experiment 3]
+                        # if self.penalty == True:
+                        #     l2_reg = torch.autograd.Variable( torch.FloatTensor(1), requires_grad=True).to(self.device)
+                        #     for W in self.model.parameters():
+                        #         l2_reg = l2_reg + W.norm(2)
+                                
+                        #     l2_reg = torch.clip(l2_reg, 0, 1.5)
+                        #     if torch.isnan(l2_reg) == True:
+                        #         l2_reg = torch.tensor([0]).to(self.device)
+                        
+                        loss = self.criterion(output, target) #+ l2_reg * 0.001
                         metric = self.metric(output.detach(), target.detach())
                         sample_recall = recall(output.detach(), target.detach())
                         sample_precision = precision(output.detach(), target.detach())
@@ -144,7 +158,7 @@ class ModelTrainer:
                         phase_recall += sample_recall.item()
 
                         with np.printoptions(precision=3, suppress=True):
-                            print(f'batch: {batch} batch loss: {loss:.3f} \tmetric: {metric:.3f}')
+                            print(f'batch: {batch} batch loss: {loss.item():.3f} \tmetric: {metric:.3f}')
 
                         del input, target, output, metric, sample_precision, sample_recall
 
@@ -193,6 +207,17 @@ class ModelTrainer:
                         self.best_model_wts = copy.deepcopy(self.model.state_dict())
                         self.best_val_precision = phase_precision
                         self.best_val_recall = phase_recall
+
+                # if epoch % 5 == 0:
+                #     # Write a short summary in a csv file:
+                #     with open(self.path_to_dir / f'{epoch}_epoch_summary.csv', 'w', newline='', encoding='utf-8') as summary:
+                #         summary.write(f'SUMMARY OF THE EXPERIMENT:\n\n')
+                #         summary.write(f'BEST VAL EPOCH: {self.best_val_epoch}\n')
+                #         summary.write(f'BEST VAL LOSS: {self.best_val_loss}\n')
+                #         summary.write(f'BEST VAL AVG metric: {self.best_val_avg_metric}\n')
+                #         summary.write(f'BEST VAL metric: {self.best_val_metric}\n')
+                #         summary.write(f'BEST VAL precision: {self.best_val_precision}\n')
+                #         summary.write(f'BEST VAL recall: {self.best_val_recall}\n')
 
             # Adjust learning rate after val phase:
             if self.scheduler and self.scheduler_step_per_epoch:

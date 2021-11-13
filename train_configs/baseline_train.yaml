@@ -9,7 +9,7 @@ val_batch_size: 1
 num_workers: 2  # for example, use a number of CPU cores
 
 lr: 1e-3  # initial learning rate
-n_epochs: 60  # number of training epochs (300 was used in the paper)
+n_epochs: 4  # number of training epochs (300 was used in the paper)
 n_cls: 2  # number of classes to predict (background and tumor)
 in_channels: 2  # number of input modalities
 n_filters: 16
