@@ -88,7 +88,7 @@ def main(args):
     criterion = losses.Dice_and_FocalLoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-5)
     metric = metrics.dice
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10, min_lr=1e-5,verbose=True)#torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=T_0, eta_min=eta_min)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=T_0, eta_min=eta_min)
 
     trainer_ = trainer.ModelTrainer(
         model=model,
