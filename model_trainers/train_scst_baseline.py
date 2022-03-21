@@ -63,7 +63,7 @@ def main(args):
     val_set = dataset.HecktorDataset(val_paths, transforms=val_transforms)
 
     # dataloaders:
-    train_loader = DataLoader(train_set, batch_size=train_batch_size, shuffle=True, num_workers=num_workers)
+    train_loader = DataLoader(train_set, batch_size=train_batch_size, shuffle=False, num_workers=num_workers)
     val_loader = DataLoader(val_set, batch_size=val_batch_size, shuffle=False, num_workers=num_workers)
     
     dataloaders = {

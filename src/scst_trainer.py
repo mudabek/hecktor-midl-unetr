@@ -65,7 +65,7 @@ class ModelTrainer:
         self.scheduler = scheduler
         self.num_epochs = num_epochs
         self.parallel = parallel
-        self.device = torch.device(cuda_device if torch.cuda.is_available() else "cpu")
+        self.device = torch.device('cpu')#torch.device(cuda_device if torch.cuda.is_available() else "cpu") 
         self.save_last_model = save_last_model
         self.scheduler_step_per_epoch = scheduler_step_per_epoch
 
@@ -120,6 +120,8 @@ class ModelTrainer:
                     batch = 0
                     for sample in self.dataloaders[phase]:
                         input, target, base_score = sample['input'], sample['target'], sample['dice_metric']
+                        if base_score > 0.85 or base_score < 0.50:
+                            continue
                         input, target, base_score = input.to(self.device), target.to(self.device), base_score.to(self.device)
 
                         # Forward pass:
@@ -149,10 +151,11 @@ class ModelTrainer:
 
                         del loss
                         batch += 1
+                        # break
 
                 phase_loss /= len(self.dataloaders[phase])
                 phase_metric /= len(self.dataloaders[phase])
-                self.learning_curves['loss'][phase].append(phase_loss)
+                self.learning_curves['loss'][phase].append(phase_loss * -1)
                 self.learning_curves['metric'][phase].append(phase_metric)
 
                 print(f'{phase.upper()} loss: {phase_loss:.3f} \tavg_metric: {np.mean(phase_metric):.3f}')
@@ -232,7 +235,7 @@ class ModelTrainer:
         # Loss figure:
         plt.figure(figsize=(17.5, 10))
         plt.plot(range(self.num_epochs), self.learning_curves['loss']['train'], label='train')
-        plt.plot(range(self.num_epochs), self.learning_curves['loss']['val'], label='val')
+        # plt.plot(range(self.num_epochs), self.learning_curves['loss']['val'], label='val')
         plt.xlabel('Epoch', fontsize=20)
         plt.ylabel('Loss', fontsize=20)
         plt.xticks(fontsize=15)
@@ -247,7 +250,7 @@ class ModelTrainer:
 
         plt.figure(figsize=(17.5, 10))
         plt.plot(range(self.num_epochs), train_avg_metric, label='train')
-        plt.plot(range(self.num_epochs), val_avg_metric, label='val')
+        # plt.plot(range(self.num_epochs), val_avg_metric, label='val')
         plt.xlabel('Epoch', fontsize=20)
         plt.ylabel('Avg metric', fontsize=20)
         plt.xticks(fontsize=15)

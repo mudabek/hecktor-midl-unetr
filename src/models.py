@@ -41,6 +41,8 @@ class BaselineUNet(nn.Module):
 
         self.conv1x1 = nn.Conv3d(n_filters, self.n_cls, kernel_size=1, stride=1, padding=0)
 
+        # self.logits = nn.Linear(self.n_cls, self.n_cls)
+
     def forward(self, x):
 
         ds0 = self.block_1_2_left(self.block_1_1_left(x))
@@ -58,6 +60,7 @@ class BaselineUNet(nn.Module):
             return torch.sigmoid(x)
         else:
             return F.softmax(x, dim=1)
+        # return F.log_softmax(self.logits(x.permute(0, 2, 3, 4, 1)).permute(0, 4, 1, 2, 3))
 
 
 class FastSmoothSENormDeepUNet_supervision_skip_no_drop(nn.Module):

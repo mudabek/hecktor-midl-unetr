@@ -15,6 +15,7 @@ from monai.utils import (
     PytorchPadMode,
     ensure_tuple_rep
 )
+from monai.transforms import Resize
 from typing import Any, List, Optional, Union, Callable
 from monai.utils.type_conversion import convert_data_type, convert_to_dst_type
 import random
@@ -27,6 +28,19 @@ class Compose:
     def __call__(self, sample):
         for transform in self.transforms:
             sample = transform(sample)
+
+        return sample
+
+class Resizer:
+    def __init__(self, mode="train"):
+        self.mode = mode
+        self.resize = Resize((128,128,128))
+
+    def __call__(self, sample):
+        img, mask = sample['input'], sample['target']
+        img = self.resize(img.T)
+        mask = self.resize(mask.T)
+        sample['input'], sample['target'] = img.T, mask.T
 
         return sample
 

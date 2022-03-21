@@ -1,4 +1,5 @@
 from monai.metrics.hausdorff_distance import compute_hausdorff_distance
+from torch.nn import functional as F
 
 def dice(input, target):
     axes = tuple(range(1, input.dim()))

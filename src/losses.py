@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+import torch.nn.functional as F 
 from metrics import dice_scst, hausdorff
 
 
@@ -43,6 +44,8 @@ class Dice_and_FocalLoss(nn.Module):
 class CELoss(nn.Module):
     def __init__(self):
         super(CELoss, self).__init__()
+        # weights = [1.0, 1.0]
+        # class_weights = torch.FloatTensor(weights).cuda()
         self.cross_entropy = nn.CrossEntropyLoss()
 
 
@@ -56,10 +59,8 @@ class CELoss(nn.Module):
 
         # Reshape input and target
         input_class_0 = 1 - input
-        input_ce = torch.stack((input_class_0, input), dim=0).squeeze(2).to(device)
+        input_ce = torch.stack((input_class_0, input), dim=1).squeeze(2).to(device)
         target_ce = target.squeeze(1).type(torch.LongTensor).to(device)
-        import pdb
-        pdb.set_trace()
 
         return self.cross_entropy(input_ce, target_ce)
 
@@ -83,19 +84,18 @@ class SCST(nn.Module):
                 advantage = baseline_score - score  
 
             # ce_loss = self.ce_loss(input, target)
-            log_loss = self.ce_loss(input, target)
 
-            loss = -advantage * log_loss
+            loss = -advantage.mean() * torch.log(input)
             
             return loss.mean()
-        # return self.dice_loss(input, target)
+
         return self.ce_loss(input, target)
 
 class Dice_and_CELoss(nn.Module):
     def __init__(self):
         super(Dice_and_CELoss, self).__init__()
         self.dice_loss = DiceLoss()
-        self.ce_loss =  CELoss()
+        self.ce_loss = CELoss()
 
     def forward(self, input, target):
         loss = self.dice_loss(input, target) + self.ce_loss(input, target)
