@@ -43,8 +43,8 @@ Train and test images are available through the competition [website](https://ww
 
 ### Model Weights
 [nnU-Net](https://drive.google.com/file/d/1z99JBTfAcA0mvCBFL7lB94IZa-7NvM30/view?usp=sharing) <br>
-[SE-U-Net](ADD LINK)
-[UNETR](ADD LINK) 
+[SE-U-Net](https://drive.google.com/file/d/1z99JBTfAcA0mvCBFL7lB94IZa-7NvM30/view?usp=sharing) <br>
+[UNETR](https://drive.google.com/file/d/1z99JBTfAcA0mvCBFL7lB94IZa-7NvM30/view?usp=sharing) <br>
 
 
 ### Paper
