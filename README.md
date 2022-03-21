@@ -18,6 +18,10 @@ Code for the Medical Imaging with Deep Learning (MIDL) 2022 conference paper stu
 - skimage 0.19.2
 
 
+### Dataset
+Train and test images are available through the competition [website](https://www.aicrowd.com/challenges/miccai-2021-hecktor).
+
+
 ### Training the models
 ```
 model_trainers/train_transformer.py -p [path_to_config]
@@ -29,11 +33,6 @@ Validation set results obtained on the folds available in train_configs folder. 
 <p align="center">
   <img src="assets/results.jpg" alt="Results" width="700"/>
 </p>
-
-
-### Dataset
-Train and test images are available through the competition [website](https://www.aicrowd.com/challenges/miccai-2021-hecktor).
-
 
 
 ### Qualitative Results
