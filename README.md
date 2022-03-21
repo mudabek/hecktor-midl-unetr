@@ -48,7 +48,7 @@ Validation set results obtained on the folds available in train_configs folder. 
 
 ### Paper
 If you use this code in you research, please cite the following paper ([arXiv](https://arxiv.org/abs/2201.06251)):
-> Sobirov I., Nazarov O., Alasmawi H., Mohammad Yaqub (2022) Automatic Segmentation of Head and Neck Tumor: How Powerful Transformers Are?
+> Sobirov I., Nazarov O., Alasmawi H., Yaqub M. (2022) Automatic Segmentation of Head and Neck Tumor: How Powerful Transformers Are?
 
 ### References
 [Original implementation of Squeeze-and-Excitation U-Net](https://github.com/iantsen/hecktor)
