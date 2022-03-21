@@ -7,7 +7,7 @@ Code for the paper studying performance of three different models (nnU-Net, Sque
 ### Architecture
 
 <p align="center">
-  <img src="assets/model.jpg" alt="UNETR Architecture" width="800"/>
+  <img src="assets/model.jpg" alt="UNETR Architecture" width="700"/>
 </p>
 
 
@@ -25,7 +25,7 @@ model_trainers/train_transformer.py -p [path_to_config]
 
 ### Validation and Testing Results
 <p align="center">
-  <img src="assets/results.jpg" alt="UNETR Architecture" width="800"/>
+  <img src="assets/results.jpg" alt="UNETR Architecture" width="700"/>
 </p>
 
 
@@ -36,7 +36,7 @@ Train and test images are available through the competition [website](https://ww
 
 ### Qualitative Results
 <p align="center">
-  <img src="assets/output_example.jpg" alt="Examples of segmentations by UNETR" width="800"/>
+  <img src="assets/output_example.jpg" alt="Examples of segmentations by UNETR" width="700"/>
 </p>
 
 
